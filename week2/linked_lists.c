@@ -4,19 +4,14 @@
 struct LinkedList {
     int value;
     struct LinkedList* next;
-    void (*traversal_func)(struct LinkedList*);
-    int (*pop)(struct LinkedList*);
-    void (*unshift)(struct LinkedList**, int); 
-    void (*append)(struct LinkedList*, int); 
 };
-
-void traversal_func(struct LinkedList* obj);
-int pop(struct LinkedList* obj);
-void unshift(struct LinkedList** head_ref, int value);
-void append(struct LinkedList* obj, int value);
 
 void traversal_func(struct LinkedList* obj) {
     struct LinkedList* cur = obj;
+    if (obj == NULL) {
+        printf("bad bad cant traverse emtpy \n");
+        return;
+    }
     while (cur->next != NULL) {
         printf("obj value is %d \n", cur->value);
         cur = cur->next;
@@ -25,9 +20,13 @@ void traversal_func(struct LinkedList* obj) {
     printf("---------------\n");
 };
 
-int pop(struct LinkedList* obj) {
-    struct LinkedList* cur = obj;
-    struct LinkedList* prev = obj;
+int pop(struct LinkedList** obj) {
+    if (*obj == NULL) {
+        printf("cannot pop anymore, list is empty \n");
+        return -1;
+    }
+    struct LinkedList* cur = *obj;
+    struct LinkedList* prev = *obj;
     while (cur->next != NULL) {
         prev = cur;
         cur = cur->next;
@@ -35,6 +34,9 @@ int pop(struct LinkedList* obj) {
     prev->next = NULL;
 
     int final_value = cur->value;
+    if (cur == *obj) {
+        *obj = NULL;
+    }
     free(cur);
     return final_value;
 };
@@ -43,31 +45,48 @@ void unshift(struct LinkedList** obj, int value) {
     struct LinkedList* new_node = (struct LinkedList*)malloc(sizeof(struct LinkedList));
     new_node->value = value;
     new_node->next = *obj;
-    new_node->traversal_func = traversal_func;
-    new_node->pop = pop;
-    new_node->unshift = unshift;
-    new_node->append = append;
     *obj = new_node;
     return;
 };
 
-void append(struct LinkedList* obj, int value) {
-    struct LinkedList* cur = obj;
-    while (cur->next != NULL) {
-        cur = cur->next;
-    }
+void append(struct LinkedList** obj, int value) {
+    struct LinkedList* cur = *obj;
     struct LinkedList* empty_pointer = NULL;
     struct LinkedList* new_node = (struct LinkedList*)malloc(sizeof(struct LinkedList));
     new_node->value = value;
     new_node->next = empty_pointer;
-    new_node->traversal_func = traversal_func;
-    new_node->pop = pop;
-    new_node->unshift = unshift;
-    new_node->append = append;
-    
-    cur->next = new_node;
+    if (*obj == NULL) {
+        *obj = new_node;
+    } else {
+        while (cur->next != NULL) {
+            cur = cur->next;
+        }
+        cur->next = new_node;
+    }
     return;
 };
+
+void invert_list(struct LinkedList** root) {
+    struct LinkedList* prev2 = NULL;
+    struct LinkedList* prev1 = NULL;
+ 
+    if (root != NULL) {
+        while ((*root)->next != NULL) {
+            if (prev1 != NULL) {
+                prev1->next = prev2;
+            }
+            prev2 = prev1;
+            prev1 = *root;
+            *root = (*root)->next;
+        }
+        if (prev1 != NULL) {
+            prev1->next = prev2;
+            (*root)->next = prev1;
+        }
+    }
+    return;
+}
+
 
 void main() {
     struct LinkedList* empty_pointer = NULL;
@@ -79,60 +98,80 @@ void main() {
     
     aron->value = 4;
     aron->next= empty_pointer;
-    aron->traversal_func = traversal_func;
-    aron->pop = pop;
-    aron->unshift = unshift;
-    aron->append = append;
         
     clau->value = 3;
     clau->next= aron;
-    clau->traversal_func = traversal_func;
-    clau->pop = pop;
-    clau->unshift = unshift;
-    clau->append = append;
-        
+    
     ener->value = 2;
     ener->next= clau;
-    ener->traversal_func = traversal_func;
-    ener->pop = pop;
-    ener->unshift = unshift;
-    ener->append = append;
-        
+
     root->value = 1;
     root->next= ener;
-    root->traversal_func = traversal_func;
-    root->pop = pop;
-    root->unshift = unshift;
-    root->append = append;
         
 
-    root->traversal_func(root);
+    traversal_func(root);
     int last_popped;
     
-    last_popped = root->pop(root);
+    last_popped = pop(&root);
     printf("last popped is %d\n", last_popped);
 
-    last_popped = root->pop(root);
+    last_popped = pop(&root);
     printf("last popped is %d\n", last_popped);
 
-    last_popped = root->pop(root);
+    last_popped = pop(&root);
     printf("last popped is %d\n", last_popped);
 
-    // last_popped = root->pop(&root);
-    // printf("last popped is %d\n", last_popped);
+    last_popped = pop(&root);
+    printf("last popped is %d\n", last_popped);
 
-    root->traversal_func(root);
+    last_popped = pop(&root);
+    printf("last popped is %d\n", last_popped);
+
+    traversal_func(root);
     
-    root->append(root, 5);
-    root->append(root, 6);
-    root->append(root, 7);
-    root->append(root, 8);
+    append(&root, 5);
+    append(&root, 6);
+    append(&root, 7);
+    append(&root, 8);
 
-    root->traversal_func(root);
+    traversal_func(root);
 
-    root->unshift(&root, 9);
+    unshift(&root, 9);
 
-    root->traversal_func(root);
+    traversal_func(root);
 
-    printf("aron heii");
+    invert_list(&root);
+
+    traversal_func(root);
+
+    last_popped = pop(&root);
+    printf("last popped is %d\n", last_popped);
+
+    invert_list(&root);
+
+    traversal_func(root);
+
+    last_popped = pop(&root);
+    printf("last popped is %d\n", last_popped);
+
+    invert_list(&root);
+
+    traversal_func(root);
+
+    last_popped = pop(&root);
+    printf("last popped is %d\n", last_popped);
+
+    invert_list(&root);
+
+    traversal_func(root);
+
+    last_popped = pop(&root);
+    printf("last popped is %d\n", last_popped);
+
+    invert_list(&root);
+
+    traversal_func(root);
+
+
+    printf("this is doone");
 }
