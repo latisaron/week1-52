@@ -7,24 +7,11 @@
 #include <stdio.h>
 
 unsigned short checksum(void *buffer, int len) {
-    unsigned short* tmpbuf = buffer;
-    unsigned int sum = 0;
-    unsigned short result;
-
-    for (sum = 0; len > 1; len -= 2){
-        sum += *tmpbuf++;
-    }
-    if (len == 1) {
-        sum += *(unsigned char*)tmpbuf;
-    }
-    sum = (sum >> 16) + ( sum & 0xFFFF);
-    sum += (sum >> 16);
-    result = ~sum;
-    return result;
+    // this should do a classic checksum stuff but i can't figure it out right now
+    return 1;
 }
 
 void main(int argc, char* argv[]) {
-    printf("are we done?0");
     struct sockaddr_in server_addr, client_addr;
     int n;
     struct iphdr {
@@ -53,13 +40,11 @@ void main(int argc, char* argv[]) {
     // AF_INET represents the domain family ipv4
     // SOCK_RAW basically means it's a raw socket, not tcp/udp - means raw packets will be coming in
     // IPPROTO_UDP basically means the socket should only look for UDP packets - but i need to create my own UDP headers
-    int sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
+    int sockfd = socket(AF_INET, SOCK_RAW, IPPROTO_UDP);
     if (sockfd < 0) {
         printf(" could not create socket"); 
         return;
     }
-
-    printf("are we done?1");
 
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(8000);
@@ -69,9 +54,8 @@ void main(int argc, char* argv[]) {
     struct udphdr* packet_udphdr = (struct udphdr*)(packet + sizeof(struct iphdr));
 
     char* data = packet + sizeof(struct iphdr) + sizeof(struct udphdr);
-    strcpy(data, argv[1]);
-
-    printf("are we done?2");
+    strncpy(data, argv[1], sizeof(packet) - sizeof(struct iphdr) - sizeof(struct udphdr) - 1);
+    data[sizeof(packet) - sizeof(struct iphdr) - sizeof(struct udphdr) - 1] = '\0';
 
     packet_iphdr->ihl = 5;
     packet_iphdr->version = 4;
@@ -85,22 +69,18 @@ void main(int argc, char* argv[]) {
     packet_iphdr->saddr = inet_addr("127.0.0.2");
     packet_iphdr->daddr = server_addr.sin_addr.s_addr;
 
-    packet_iphdr->check = checksum((unsigned short*)packet, packet_iphdr->tot_len);
+    // packet_iphdr->check = checksum((unsigned short*)packet, packet_iphdr->tot_len);
 
     packet_udphdr->source = htons(12345);
     packet_udphdr->dest = htons(8000);
     packet_udphdr->len = htons(sizeof(struct udphdr) + strlen(data));
     packet_udphdr->check = 0;
 
-    printf("are we done?3");
-    
     if (sendto(sockfd, packet, ntohs(packet_iphdr->tot_len), 0, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
         printf("send failed");
         close(sockfd);
         return;
     }
-
-    printf("are we done?4");
 
     close(sockfd);
     return;

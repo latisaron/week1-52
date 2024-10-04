@@ -10,6 +10,7 @@
 void main() {
     struct sockaddr_in server_addr, client_addr;
     char buffer[1024];
+    memset(buffer, 0, 1024);
     int n;
     struct iphdr {
         unsigned int ihl:4; // internet header length - 4 means 4 bytes - 32 bits
@@ -25,7 +26,7 @@ void main() {
         uint32_t daddr; // destination ip address
     };
 
-    struct uphdr {
+    struct udphdr {
         uint16_t source; // source port - port number on sending device
         uint16_t dest; // destination port - port number on the receiving device
         uint16_t len; // length of udp header + data - length of udp header + payload
@@ -49,10 +50,28 @@ void main() {
 
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(8080);
-    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
+    server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
     bind(sockfd, (struct sockaddr*)& server_addr, sizeof(server_addr));
 
+    struct iphdr* package_iphdr = (struct iphdr*)buffer;
+    struct udphdr* package_udphdr = (struct udphdr*)(buffer + sizeof(struct iphdr));
+    char* data = (buffer + sizeof(struct iphdr) + sizeof(struct udphdr));
 
+    socklen_t client_len = sizeof(client_addr);
+
+    n = recvfrom(sockfd, buffer, sizeof(buffer), 0, (struct sockaddr*)& client_addr, &client_len);
+    if (n < 0) {
+        printf("could not receive");
+        close(sockfd);
+        return;
+    }
+    buffer[n] = '\0';
+
+    printf("got string from user %s", data);
+    printf("data len is %d", strlen(data));
+    printf("buff len is %d", strlen(buffer));
+
+    close(sockfd);
     return;
 }
