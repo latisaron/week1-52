@@ -49,10 +49,14 @@ void main() {
     setsockopt(sockfd, IPPROTO_UDP, IP_HDRINCL, &one, sizeof(one));
 
     server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(8080);
-    server_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+    server_addr.sin_port = htons(8000);
+    server_addr.sin_addr.s_addr = htonl(INADDR_ANY);
 
-    bind(sockfd, (struct sockaddr*)& server_addr, sizeof(server_addr));
+    if (bind(sockfd, (struct sockaddr*)& server_addr, sizeof(server_addr)) < 0) {
+        printf("could not fucking bind the socket");
+        close(sockfd);
+        return;
+    }
 
     struct iphdr* package_iphdr = (struct iphdr*)buffer;
     struct udphdr* package_udphdr = (struct udphdr*)(buffer + sizeof(struct iphdr));
@@ -66,6 +70,25 @@ void main() {
         close(sockfd);
         return;
     }
+    
+    printf("ihl is %d \n", package_iphdr->ihl);
+    printf(" version is %d \n ", package_iphdr->version);
+    printf(" tos is %d \n ", package_iphdr->tos);
+    printf(" totlen is %d \n ", htons(package_iphdr->tot_len));
+    printf(" id is %d \n ", package_iphdr->id);
+    printf(" fragoff is %d \n ", package_iphdr->frag_off);
+    printf(" ttl is %d \n ", package_iphdr->ttl);
+    printf(" protocl is %d \n ", package_iphdr->protocol);
+    printf(" check is %d \n ", package_iphdr->check);
+    printf(" saddr is %d \n ", package_iphdr->saddr);
+    printf(" daddr is %d \n ", package_iphdr->daddr);
+
+    printf("udpsrc is %d \n", package_udphdr->source);
+    printf("udpdest is %d\n", package_udphdr->dest);
+    printf("udplen is %d\n", package_udphdr->len);
+    printf("udpcheck is %d\n", package_udphdr->check);
+      
+
     buffer[n] = '\0';
 
     printf("got string from user %s", data);

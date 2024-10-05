@@ -76,6 +76,23 @@ void main(int argc, char* argv[]) {
     packet_udphdr->len = htons(sizeof(struct udphdr) + strlen(data));
     packet_udphdr->check = 0;
 
+    printf("ihl is %d \n", packet_iphdr->ihl);
+    printf(" version is %d \n ", packet_iphdr->version);
+    printf(" tos is %d \n ", packet_iphdr->tos);
+    printf(" totlen is %d \n ", htons(packet_iphdr->tot_len));
+    printf(" id is %d \n ", packet_iphdr->id);
+    printf(" fragoff is %d \n ", packet_iphdr->frag_off);
+    printf(" ttl is %d \n ", packet_iphdr->ttl);
+    printf(" protocl is %d \n ", packet_iphdr->protocol);
+    printf(" check is %d \n ", packet_iphdr->check);
+    printf(" saddr is %d \n ", packet_iphdr->saddr);
+    printf(" daddr is %d \n ", packet_iphdr->daddr);
+
+    printf("udpsrc is %d \n", packet_udphdr->source);
+    printf("udpdest is %d\n", packet_udphdr->dest);
+    printf("udplen is %d\n", packet_udphdr->len);
+    printf("udpcheck is %d\n", packet_udphdr->check);
+
     if (sendto(sockfd, packet, ntohs(packet_iphdr->tot_len), 0, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
         printf("send failed");
         close(sockfd);

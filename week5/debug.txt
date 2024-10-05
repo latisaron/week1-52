@@ -1,0 +1,36 @@
+server
+
+ihl is 5 
+ version is 4 
+  tos is 0 
+  totlen is 60 
+  id is 37116 
+  fragoff is 64 
+  ttl is 64 
+  protocl is 17 
+  check is 7744 
+  saddr is 16777343 
+  daddr is 16777343 
+ udpsrc is 69 
+udpdest is 10240
+udplen is 12756
+udpcheck is 0
+
+
+client
+
+ihl is 5 
+ version is 4 
+  tos is 0 
+  totlen is 40 
+  id is 12756 
+  fragoff is 0 
+  ttl is 64 
+  protocl is 17 
+  check is 0 
+  saddr is 33554559 
+  daddr is 16777343 
+ udpsrc is 14640 
+udpdest is 16415
+udplen is 5120
+udpcheck is 0
