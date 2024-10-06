@@ -4,18 +4,18 @@ ihl is 5
  version is 4 
   tos is 0 
   totlen is 60 
-  id is 37116 
+  id is 18588 
   fragoff is 64 
   ttl is 64 
   protocl is 17 
-  check is 7744 
+  check is 26272 
   saddr is 16777343 
   daddr is 16777343 
  udpsrc is 69 
-udpdest is 10240
+udpdest is 40
 udplen is 12756
 udpcheck is 0
-
+got string from user @data len is 2buff len is 1
 
 client
 
@@ -31,6 +31,6 @@ ihl is 5
   saddr is 33554559 
   daddr is 16777343 
  udpsrc is 14640 
-udpdest is 16415
+udpdest is 8080
 udplen is 5120
 udpcheck is 0
